@@ -1,0 +1,57 @@
+service: pedidos-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:*"
+      Resource: "*"
+
+functions:
+  createOrder:
+    handler: handler.createOrder
+    events:
+      - http:
+          path: orders
+          method: post
+  getOrder:
+    handler: handler.getOrder
+    events:
+      - http:
+          path: orders/{id}
+          method: get
+  updateOrder:
+    handler: handler.updateOrder
+    events:
+      - http:
+          path: orders/{id}
+          method: put
+  deleteOrder:
+    handler: handler.deleteOrder
+    events:
+      - http:
+          path: orders/{id}
+          method: delete
+  listOrders:
+    handler: handler.listOrders
+    events:
+      - http:
+          path: orders
+          method: get
+
+resources:
+  Resources:
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Orders
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
